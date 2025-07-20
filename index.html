@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+</head>
+<body>
+    <input type="text" id="initData" placeholder="Paste initData here" size="80">
+    <button onclick="authTest()">Authenticate</button>
+    <div id="result"></div>
+
+    <script>
+    async function authTest() {
+        const initData = document.getElementById('initData').value;
+        const resultEl = document.getElementById('result');
+        
+        if (!initData) {
+            resultEl.textContent = "initData required";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/auth?initData=${encodeURIComponent(initData)}`);
+            const data = await response.json();
+            
+            if (response.ok && data.auth) {
+                resultEl.innerHTML = `✅ Success! User ID: ${data.user_id}`;
+            } else {
+                resultEl.textContent = `❌ Failed: ${data.error || 'Unknown error'}`;
+            }
+        } catch (error) {
+            resultEl.textContent = `Request error: ${error.message}`;
+        }
+    }
+    </script>
+</body>
+</html>
