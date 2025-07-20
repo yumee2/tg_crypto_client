@@ -22,7 +22,7 @@
             console.log("INIT DATA: ", initData)
         try {
             // Send auth request to backend
-            const response = await fetch(`https://tg-crypto.onrender.com/auth?initData=${initData}`, {
+            const response = await fetch(`https://tg-crypto.onrender.com/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
