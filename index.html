@@ -1,36 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auth Test</title>
+    <title>Telegram Auth</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <input type="text" id="initData" placeholder="Paste initData here" size="80">
-    <button onclick="authTest()">Authenticate</button>
-    <div id="result"></div>
-
+    <div id="status">Initializing...</div>
+    
     <script>
-    async function authTest() {
-        const initData = document.getElementById('initData').value;
-        const resultEl = document.getElementById('result');
+    const tg = window.Telegram.WebApp;
+    const statusEl = document.getElementById('status');
+    
+    async function authenticate() {
+        // Get initData from Telegram context
+        const initData = tg.initData || '';
         
         if (!initData) {
-            resultEl.textContent = "initData required";
+            statusEl.textContent = "Error: Missing Telegram initData";
             return;
         }
 
         try {
+            // Send auth request to backend
             const response = await fetch(`/auth?initData=${encodeURIComponent(initData)}`);
-            const data = await response.json();
             
-            if (response.ok && data.auth) {
-                resultEl.innerHTML = `✅ Success! User ID: ${data.user_id}`;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Authentication failed');
+            }
+
+            const result = await response.json();
+            if (result.auth) {
+                statusEl.innerHTML = `✅ Authenticated! User ID: ${result.user_id}`;
             } else {
-                resultEl.textContent = `❌ Failed: ${data.error || 'Unknown error'}`;
+                statusEl.textContent = "❌ Authentication failed";
             }
         } catch (error) {
-            resultEl.textContent = `Request error: ${error.message}`;
+            statusEl.textContent = `Error: ${error.message}`;
         }
     }
+
+    // Initialize when Telegram SDK is ready
+    tg.ready();
+    tg.expand();  // Expand web app to full view
+    authenticate();
     </script>
 </body>
 </html>
